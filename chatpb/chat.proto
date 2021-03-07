@@ -1,0 +1,80 @@
+syntax = "proto3";
+option go_package = ".;chatpb";
+import "common.proto";
+
+message C2SLogin {
+    bytes username = 1;
+    bytes password = 2;
+}
+
+message S2CLogin {
+    RetType ret = 1;
+    StructUser info = 2;
+    repeated S2CChat lastchat = 3;
+}
+
+message C2SRegister {
+    bytes username = 1;
+    bytes password = 2;
+}
+
+message S2CRegister {
+    RetType ret = 1;
+}
+
+message C2SOnlineUsers {
+
+}
+
+message S2COnlineUsers {
+    RetType ret = 1;
+    repeated StructUser users = 2;
+}
+
+message C2SChat {
+    MsgType msgType = 1;
+    uint32 toUid = 2;
+    bytes toNick = 3;
+    bytes msg = 4;
+}
+
+message S2CChat {
+    RetType ret = 1;
+    MsgType msgType = 2;
+    uint32 fromUid = 3;
+    uint32 toUid = 4;
+    bytes fromNick = 5;
+    bytes toNick = 6;
+    bytes msg = 7;
+    uint64 sendTime = 8;
+}
+
+message C2SChatCntTopUsers {
+    uint32 start = 1;
+    uint32 cnt = 2;
+}
+
+message S2CChatCntTopUsers {
+    RetType ret = 1;
+    repeated StructUser users = 2;
+}
+
+message C2SHeartBeat {
+
+}
+
+message S2CStatusChange {
+    RetType ret = 1;
+    StructUser user = 2;
+    UserStatus status = 3;
+}
+
+message C2SChatCnt {
+    bytes nick = 1;
+}
+
+message S2CChatCnt {
+    RetType ret = 1;
+    bytes nick = 2;
+    uint32 chatcnt = 3;
+}

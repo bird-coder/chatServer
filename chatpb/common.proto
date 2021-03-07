@@ -1,0 +1,35 @@
+syntax = "proto3";
+option go_package = ".;chatpb";
+
+enum RetType {
+    Success = 0; //成功
+    NormalErrpr = 1; //一般错误
+    RedisError = 2; //redis执行失败
+    SQLError = 3; //mysql执行失败
+    PassError = 100; //密码错误
+    AccountError = 101; //账号错误
+    AccountExistError = 102; //账号已存在
+    AccountNotStandard = 103; //账号不标准
+    PassNotStandard = 104; //密码不标准
+    UserOffline = 105; //账号不标准
+    UserOnline = 106; //账号不标准
+}
+
+enum MsgType {
+    eMsg_All = 0; //通知所有
+    eMsg_One = 1; //通知一个
+}
+
+enum UserStatus {
+    eStatus_Online = 0;
+    eStatus_Offline = 1;
+}
+
+message StructUser {
+    bytes username = 1;
+    uint32 uid = 2;
+    uint64 regtime = 3;
+    uint64 lastlogintime = 4;
+    uint32 chatcnt = 5;
+    uint64 lastleavetime = 6;
+}
