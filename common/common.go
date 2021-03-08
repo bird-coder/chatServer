@@ -24,6 +24,12 @@ func DealHeader(buf []byte) ([]uint32, error) {
 	return headers, nil
 }
 
-func createHeader(msg []byte) ([]byte, error) {
-
+func CreateHeader(buf []byte, pid uint32, uid uint32, sid uint32) []byte {
+	headerBuf := make([]byte, 16, 16)
+	pkgLen := 16 + uint32(len(buf))
+	binary.BigEndian.PutUint32(headerBuf[0:4], pkgLen)
+	binary.BigEndian.PutUint32(headerBuf[4:8], pid)
+	binary.BigEndian.PutUint32(headerBuf[8:12], uid)
+	binary.BigEndian.PutUint32(headerBuf[12:16], sid)
+	return headerBuf
 }

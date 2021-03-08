@@ -2,7 +2,7 @@ package server
 
 import (
 	"bytes"
-	"encoding/binary"
+	"chatServer/common"
 	"fmt"
 	"net"
 
@@ -37,30 +37,29 @@ var (
 	}
 )
 
-func (conn *User) Send(msg proto.Message) error {
+func (conn *User) Send(msg proto.Message, pid uint32) error {
+	if _, has := ProtoMap[pid]; !has {
+		l4g.Error("protocol id error:%d", pid)
+		err := fmt.Errorf("protocol id error:%d", pid)
+		return err
+	}
 	buf, err := proto.Marshal(msg)
 	if err != nil {
 		l4g.Error("Send Proto Marahal failed:%s", err)
 		return err
 	}
-	var pkgLen = 16 + uint32(len(buf))
+	headerBuf := common.CreateHeader(buf, pid, conn.id, conn.sid)
 	var sendBuf bytes.Buffer
-	var headerBuf = []byte{0, 0, 0, 0}
-	binary.BigEndian.PutUint32(headerBuf, pkgLen)
 	sendBuf.Write(headerBuf)
-	var msgTypeLenBuf = []byte{0, 0, 0, 0}
-	binary.BigEndian.PutUint32(msgTypeLenBuf, uint32(len(msgType)))
-	sendBuf.Write(msgTypeLenBuf)
-	sendBuf.Write([]byte(msgType))
 	sendBuf.Write(buf)
 	conn.Write(sendBuf.Bytes())
 	return nil
 }
 
-func (conn *User) SendAll(msg proto.Message) error {
+func (conn *User) SendAll(msg proto.Message, pid uint32) error {
 	for k, v := range OnlineUsers.UserPool {
 		if k != conn.id {
-			if err := v.Send(msg); err != nil {
+			if err := v.Send(msg, pid); err != nil {
 				return err
 			}
 		}
@@ -68,9 +67,9 @@ func (conn *User) SendAll(msg proto.Message) error {
 	return nil
 }
 
-func (conn *User) SendTo(msg proto.Message, targetId uint32) error {
+func (conn *User) SendTo(msg proto.Message, pid uint32, targetId uint32) error {
 	if pUser, has := OnlineUsers.UserPool[targetId]; has {
-		return pUser.Send(msg)
+		return pUser.Send(msg, pid)
 	} else {
 		l4g.Error("%d send to %d failed", conn.id, targetId)
 	}
@@ -95,7 +94,7 @@ func (pUM *UserManager) Delete(pU *User) error {
 
 func (pUM *UserManager) getOnlineList() []uint32 {
 	var idList []uint32
-	for k, _ := range pUM.UserPool {
+	for k := range pUM.UserPool {
 		idList = append(idList, k)
 	}
 	return idList
